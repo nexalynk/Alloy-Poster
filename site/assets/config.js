@@ -1,2 +1,2 @@
-window.SB_URL="";
-window.SB_KEY="";
+window.SB_URL="https://yvrfnluruufyhmrompud.supabase.co";
+window.SB_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl2cmZubHVydXVmeWhtcm9tcHVkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE0MjMxOTIsImV4cCI6MjEwNjk5OTE5Mn0.d6INRYwleDVupzRT8eIfiwZB6pj2-mdTOoCeFgYgMcI";
