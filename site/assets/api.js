@@ -17,7 +17,7 @@ function apply(c){if(!c)return;try{const R=CONFIG.rules,r=c.rules||{};
  if(c.products&&c.products.length)CONFIG.products=c.products}catch(e){}}
 apply(LS.get("ag_catalog",null));
 API.sb.rpc("get_catalog").then(({data})=>{if(!data)return;const changed=JSON.stringify(data)!==JSON.stringify(LS.get("ag_catalog",null));LS.set("ag_catalog",data);apply(data);
- if(changed&&window.build){try{build();update()}catch(e){}}renderCart()});
+ if(changed&&window.build){try{build();update()}catch(e){}}if(changed)document.dispatchEvent(new Event("catalog"));renderCart()});
 window.uploadDesign=async f=>{if(!f)return null;const ext=(f.name.split(".").pop()||"").toLowerCase();
  const fail=e=>{toast(e&&e.context&&e.context.status===429?"Too many uploads. Please wait a while and try again.":"Upload failed. Check your connection and try again.");throw e||new Error("upload")};
  const{data,error}=await API.sb.functions.invoke("upload-url",{body:{ext,type:f.type,size:f.size}});

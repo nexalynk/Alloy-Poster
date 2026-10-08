@@ -53,4 +53,3 @@ Stripe: switch to live mode, replace `STRIPE_SECRET_KEY` with the live key and c
 | "Too many attempts" | Rate limit: 10 checkouts per 10 min and 40 uploads per hour per visitor |
 
 Leave `config.js` empty to try the site in demo mode (browser-only cart and orders, no payment).
-"# Alloy-Poster" 
