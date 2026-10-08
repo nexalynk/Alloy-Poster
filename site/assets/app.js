@@ -1,0 +1,51 @@
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const B=document.documentElement.dataset.base||"";
+const CONFIG={currency:"USD",taxRate:0.13,freeShipOver:150,shipFlat:14.95,
+ sizes:[[8,10],[12,12],[12,18],[16,20],[20,30],[24,36]],
+ rules:{perSqIn:0.115,minPrice:39,finish:{Gloss:1,Matte:1.05},mount:{Standard:0,Floating:24,Magnetic:18},enhance:{None:0,"Auto-enhance":9},shape:{Rectangle:0,Hexagon:15,Star:20,Circle:12,Diamond:15,Octagon:15},qtyDiscount:{2:0.10,3:0.15}},
+ products:[["Classic Metal Prints","Gallery-grade photo art.","#8d99ae,#2b2d42","Prints","Bestseller"],["Custom Photo Metal Prints","Your photo on premium aluminum.","#f4a261,#e76f51","Prints","Bestseller"],["Star Map Prints","The night sky from your moment.","#0b132b,#3a506b","Maps","New"],["Street Map Prints","Your city, framed in metal.","#d8e2dc,#6d6875","Maps",""],["Hexagon Prints","Modular wall-art shapes.","#52796f,#cad2c5","Shapes","New"],["Tabletop Prints","Small-format desk art.","#b08968,#ede0d4","Prints",""],["Collage Prints","Many memories, one panel.","#e5989b,#6d597a","Prints",""],["Custom Shapes","Cut to your design.","#4361ee,#4cc9f0","Shapes",""],["Artist Collections","Licensed and original art.","#9d0208,#370617","Collections",""],["Giftable Metal Art","Ready to give.","#ffba08,#6a040f","Gifts","Bestseller"]],
+ statuses:["Order Received","Payment Confirmed","Image Review","Production","Quality Check","Packed","Shipped","Delivered"]};
+const money=n=>"$"+n.toFixed(2);
+function unit(o){const r=CONFIG.rules;let p=Math.max(r.minPrice,o.d[0]*o.d[1]*r.perSqIn);p*=r.finish[o.finish];return p+r.mount[o.mount]+r.enhance[o.enh]+(r.shape&&o.shape?+r.shape[o.shape]||0:0)}
+function disc(q){const d=CONFIG.rules.qtyDiscount;return q>=3?d[3]:q===2?d[2]:0}
+const LS={get(k,f){try{return JSON.parse(localStorage.getItem(k))??f}catch(e){return f}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+CONFIG.allProducts=LS.get("ag_products",null)||CONFIG.products.map(p=>({name:p[0],description:p[1],gradient:p[2],category:p[3],badge:p[4],image:"",active:true}));
+CONFIG.products=CONFIG.allProducts.filter(p=>p.active!==false).map(p=>[p.name,p.description,p.gradient,p.category,p.badge||"",p.image||""]);
+CONFIG.site=Object.assign({site_name:"Alloy Poster"},LS.get("ag_site",{}));
+{const s=CONFIG.site,n=k=>s[k]!==undefined&&s[k]!==""&&!isNaN(+s[k]);if(n("ship_flat"))CONFIG.shipFlat=+s.ship_flat;if(n("free_ship_over"))CONFIG.freeShipOver=+s.free_ship_over;if(n("express_ship"))CONFIG.expressShip=+s.express_ship;if(n("tax_rate"))CONFIG.taxRate=+s.tax_rate/100}
+function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function applySite(){const s=CONFIG.site,name=s.site_name||"Alloy Poster",logo=$(".logo");
+ if(logo){const u=s.logo||"";if(/^(https:\/\/|data:image\/)/.test(u)){logo.textContent="";const im=new Image();im.src=u;im.alt=name;im.style.cssText="height:34px;display:block";logo.append(im)}else logo.textContent=name.toUpperCase()}
+ if(s.promo_text){const b=$(".bar");if(b)b.textContent=s.promo_text}
+ document.title=document.title.replace(/ \| [^|]*$/," | "+name);
+ $$("[data-site]").forEach(e=>{const v=s[e.dataset.site];if(v)e.textContent=v});
+ $$("[data-page]").forEach(e=>{const v=s[e.dataset.page];if(v)e.innerHTML=v.split(/\n{2,}/).map(b=>b.startsWith("## ")?`<h2>${esc(b.slice(3))}</h2>`:`<p>${esc(b).replace(/\n/g,"<br>")}</p>`).join("")});
+ const c=$("[data-contact]");if(c){c.textContent="";[[s.contact_email,"mailto:"+s.contact_email],[s.contact_phone,"tel:"+String(s.contact_phone||"").replace(/[^+\d]/g,"")],[s.contact_address,""]].forEach(([t,h])=>{if(!t)return;const a=document.createElement(h?"a":"div");a.textContent=t;if(h)a.href=h;c.append(a)})}}
+const SHAPEQ=n=>/hexagon/i.test(n)?"?shape=Hexagon":/custom shapes/i.test(n)?"?shape=Star":/star map/i.test(n)?"?shape=Circle":"";
+const Cart={get:()=>LS.get("ag_cart",[]),set(v){LS.set("ag_cart",v);renderCart()},add(i){Cart.set([...Cart.get(),i])}};
+function lineTotal(i){return unit(i)*i.qty*(1-disc(i.qty))}
+function totals(c,extra=0){const sub=c.reduce((a,i)=>a+lineTotal(i),0);const ship=!c.length?0:(sub>=CONFIG.freeShipOver?0:CONFIG.shipFlat)+extra;const tax=(sub+ship)*CONFIG.taxRate;return{sub,ship,tax,total:sub+ship+tax}}
+function toast(m){const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2600)}
+function renderCart(){
+ const c=Cart.get();$$("[data-cartn]").forEach(e=>e.textContent=c.reduce((a,i)=>a+i.qty,0));
+ $$("[data-cartitems]").forEach(e=>e.innerHTML=c.length?c.map((i,n)=>`<div class="item"><img src="${i.thumb}" alt="Print preview"><div><b>${i.name||"Custom Metal Print"}</b><br>${i.d.join(" × ")} in · ${i.finish} · ${i.mount}${i.shape&&i.shape!=="Rectangle"?" · "+i.shape:""}${i.enh!=="None"?" · Enhanced":""}<br>Qty ${i.qty} · ${money(lineTotal(i))}<br><button data-dup="${n}">Duplicate</button><button data-rm="${n}">Remove</button></div></div>`).join(""):'<p>Your cart is empty. <a href="'+B+'shop.html">Browse the shop</a>.</p>');
+ const t=totals(c);$$("[data-carttotals]").forEach(e=>e.innerHTML=`<div class="row"><span>Subtotal</span><span>${money(t.sub)}</span></div><div class="row"><span>Shipping</span><span>${t.ship?money(t.ship):"Free"}</span></div><div class="row"><span>Tax (est.)</span><span>${money(t.tax)}</span></div><div class="row"><b>Total</b><b>${money(t.total)}</b></div>${t.sub&&t.sub<CONFIG.freeShipOver?`<small>Add ${money(CONFIG.freeShipOver-t.sub)} more for free shipping.</small>`:""}`);
+ $$("[data-needscart]").forEach(e=>e.toggleAttribute("disabled",!c.length)||e.setAttribute("aria-disabled",!c.length));
+}
+document.addEventListener("click",e=>{const d=e.target.dataset;if(!d)return;const c=Cart.get();if(d.rm!==undefined){c.splice(+d.rm,1);Cart.set(c)}else if(d.dup!==undefined){c.push({...c[+d.dup]});Cart.set(c)}});
+function productCards(list){return list.map(p=>{const[a,b]=p[2].split(",");return `<div class="card"><div class="im" style="--g:linear-gradient(135deg,${a},${b})">${/^(https:\/\/|data:image\/)/.test(p[5]||"")?`<img src="${esc(p[5])}" alt="${esc(p[0])}" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover">`:""}${p[4]?`<span class="badge">${p[4]}</span>`:""}</div><div class="b"><b>${p[0]}</b><small>${p[1]}</small><span>From ${money(CONFIG.rules.minPrice)}</span><a href="${B}products/custom-metal-print/index.html${SHAPEQ(p[0])}">Customize →</a></div></div>`}).join("")}
+const NAV=[["shop.html","Shop"],["products/custom-metal-print/index.html","Custom Metal Prints"],["gallery.html","Gallery"],["how-it-works.html","How It Works"],["about.html","About"],["guides.html","Guides"],["account.html","Account"]];
+const FOOT=[["Shop",[["products/custom-metal-print/index.html","Custom Metal Prints"],["gallery-wall-builder.html","Gallery Wall Builder"],["shop.html","All Products"]]],["Help",[["contact.html","Contact"],["faq.html","FAQ"],["shipping.html","Shipping"],["returns.html","Returns"],["track-order.html","Track Order"]]],["Company",[["about.html","About"],["gallery.html","Gallery"],["guides.html","Guides"],["account.html","Account"]]],["Legal",[["privacy.html","Privacy"],["terms.html","Terms"],["returns.html","Refund Policy"],["shipping.html","Shipping Policy"]]]];
+document.body.insertAdjacentHTML("afterbegin",`<div class="bar">Free shipping over $${CONFIG.freeShipOver} · 10% off 2+ prints · Satisfaction guarantee</div>
+<header><div class="wrap nav"><a class="logo" href="${B}index.html">ALLOY POSTER</a><nav id="nav" aria-label="Main">${NAV.map(n=>`<a href="${B}${n[0]}">${n[1]}</a>`).join("")}</nav><span class="sp"></span>
+<a class="btn hd" href="${B}products/custom-metal-print/index.html">Create Your Metal Print</a><a class="cartbtn" href="${B}account.html" style="text-decoration:none;display:inline-flex;align-items:center">Account</a><button class="cartbtn" id="cartOpen" aria-label="Open cart">Cart (<span data-cartn>0</span>)</button><button class="hamb" id="hamb" aria-label="Menu" aria-expanded="false">Menu</button></div></header>`);
+document.body.insertAdjacentHTML("beforeend",`<footer><div class="wrap"><div class="cols">${FOOT.map(([h,l])=>`<div><b>${h}</b>${l.map(x=>`<a href="${B}${x[0]}">${x[1]}</a>`).join("")}</div>`).join("")}</div>
+<form id="news" style="margin-top:28px;max-width:420px"><label class="f" for="nl">Get inspiration, product launches and special offers.</label><div style="display:flex;gap:8px"><input id="nl" type="email" required placeholder="you@example.com"><button class="btn">Subscribe</button></div></form><div data-contact style="margin-top:20px;display:flex;flex-direction:column;gap:2px"></div><p data-site="footer_text" style="margin-top:12px"></p><p style="margin-top:12px">© <span data-site="site_name">Alloy Poster</span>. All rights reserved.</p></div></footer>
+<aside class="drawer" id="drawer" aria-label="Cart" aria-hidden="true"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="font-size:22px;margin:0">Your cart</h2><button class="cartbtn" id="cartClose">Close</button></div><div class="items" data-cartitems></div><div data-carttotals style="font-size:14px"></div><a class="btn" href="${B}checkout.html" style="margin-top:12px;text-align:center">Checkout</a><a href="${B}cart.html" style="text-align:center;margin-top:8px">View full cart</a></aside>
+${document.body.dataset.sticky?`<a class="btn sticky" href="${B}products/custom-metal-print/index.html">Customize Now</a>`:""}`);
+const dr=$("#drawer");const openCart=()=>{dr.classList.add("open");dr.setAttribute("aria-hidden","false");$("#cartClose").focus()},closeCart=()=>{dr.classList.remove("open");dr.setAttribute("aria-hidden","true")};
+$("#cartOpen").onclick=openCart;$("#cartClose").onclick=closeCart;addEventListener("keydown",e=>{if(e.key==="Escape")closeCart()});
+$("#hamb").onclick=e=>{const o=$("#nav").classList.toggle("open");e.target.setAttribute("aria-expanded",o)};
+$("#news").onsubmit=e=>{e.preventDefault();toast("Thanks! (Connect an email provider to save sign-ups.)");e.target.reset()};
+renderCart();applySite();

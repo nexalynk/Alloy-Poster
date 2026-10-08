@@ -1,0 +1,1 @@
+$("#cf").onsubmit=e=>{e.preventDefault();toast("Thanks. (Connect a form handler to receive messages.)");e.target.reset()};

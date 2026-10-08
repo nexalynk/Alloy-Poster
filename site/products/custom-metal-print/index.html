@@ -1,0 +1,27 @@
+<!DOCTYPE html><html lang="en" data-base="../../"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Custom Metal Print | Alloy Poster</title><meta name="description" content="Upload your photo, preview it on a wall, choose size and mounting, and see your price instantly."><link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🖼️%3C/text%3E%3C/svg%3E"><link rel="stylesheet" href="../../assets/style.css"></head>
+<body><main><div class="wrap ph"><div class="crumb">Home / Products / Custom Metal Print</div><h1 style="font-size:clamp(30px,5vw,48px)">Custom Metal Print</h1><p>Upload → crop → enhance → size → mount → preview → price → add to cart.</p></div><section style="padding-top:16px"><div class="wrap"><div class="cz">
+  <div>
+   <div class="wall" id="wall"><div class="panelwrap" id="pw"><canvas id="cv" aria-label="Artwork preview. Drag to pan."></canvas></div></div>
+   <div class="tools">
+    <label for="zoom">Zoom</label><input id="zoom" type="range" min="1" max="4" step="0.01" value="1">
+    <button id="rot" type="button">Rotate 90°</button><button id="reset" type="button">Reset</button>
+   </div>
+   <div class="q" id="quality" role="status">Upload a photo to check print quality.</div>
+  </div>
+  <div>
+   <label class="drop" id="drop" for="file"><strong>Drag a photo here or tap to upload</strong><br><small>JPG, PNG, WEBP · up to 40 MB · camera roll works on mobile</small>
+    <input id="file" type="file" accept="image/jpeg,image/png,image/webp,image/heic" hidden></label>
+   <div id="err" role="alert" style="color:#c0392b;font-size:14px;margin-top:6px"></div>
+   <fieldset><legend>Shape</legend><div class="opts" id="shape"></div></fieldset><fieldset><legend>Size (inches)</legend><div class="opts" id="sizes"></div></fieldset>
+   <fieldset><legend>Orientation</legend><div class="opts" id="orient"></div></fieldset>
+   <fieldset><legend>Finish</legend><div class="opts" id="finish"></div></fieldset>
+   <fieldset><legend>Mounting</legend><div class="opts" id="mount"></div></fieldset>
+   <fieldset><legend>Enhancement</legend><div class="opts" id="enh"></div></fieldset>
+   <fieldset><legend>Quantity</legend><div class="opts" id="qty"></div></fieldset>
+   <div class="price" id="price" aria-live="polite">$0</div>
+   <div style="color:var(--muted);font-size:14px" id="pnote"></div>
+   <div class="cta"><button class="btn" id="add" disabled>Add to Cart</button></div>
+  </div>
+ </div>
+</div></section><section style="padding-top:0"><div class="wrap cols2"><div class="box"><b>Specs</b><p>Premium aluminum, gloss or matte finish, ready-to-hang or magnetic mounting. Made to order.</p></div><div class="box"><b>Delivery</b><p>Production 3–5 business days, plus shipping. Free shipping over $150.</p></div></div></section></main><script src="../../assets/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script><script src="../../assets/app.js"></script><script src="../../assets/api.js"></script><script src="../../assets/customizer.js"></script></body></html>

@@ -1,0 +1,1 @@
+$("#gl").innerHTML=CONFIG.products.concat(CONFIG.products).slice(0,12).map(p=>`<div class="card"><div class="im" style="--g:linear-gradient(135deg,${p[2].split(",")[0]},${p[2].split(",")[1]})"></div></div>`).join("");
