@@ -112,3 +112,5 @@ input[type=password],input[type=number]{width:100%;padding:10px;border:1px solid
 .sofa{position:absolute;left:50%;bottom:6%;transform:translateX(-50%);width:70%;height:42%;background:#6b7280;border-radius:10px 10px 4px 4px;z-index:0}
 .sofa::before{content:"";position:absolute;left:-4%;right:-4%;bottom:0;height:45%;background:#5b6370;border-radius:8px}
 .swatches{display:flex;gap:8px;align-items:center;margin-top:10px;font-size:14px;flex-wrap:wrap}.swatches button{width:32px;height:32px;border-radius:50%;border:2px solid var(--line);cursor:pointer}
+
+.art.has-img{background-size:cover;background-position:center}.art.has-img::after{display:none}

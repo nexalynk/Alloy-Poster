@@ -38,7 +38,7 @@ Deno.serve(async (req) => {
     const { data: order, error } = await sb.from("orders").insert({ customer_email: cu.email.toLowerCase(), customer_name: String(cu.name ?? "").slice(0, 120), shipping_address: cu.address, items: clean, subtotal: sub / 100, shipping: ship / 100, tax: tax / 100, total: (sub + ship + tax) / 100, shipping_method: express ? "express" : "standard" }).select("id").single();
     if (error) throw error;
     const site = Deno.env.get("SITE_URL")!; // e.g. https://yourstore.com/
-    const session = await stripe.checkout.sessions.create({ mode: "payment", customer_email: cu.email, line_items: lines, success_url: `${site}order-confirmation.html?s={CHECKOUT_SESSION_ID}`, cancel_url: `${site}cart.html`, metadata: { order_id: order.id } });
+    const session = await stripe.checkout.sessions.create({ mode: "payment", customer_email: cu.email, line_items: lines, success_url: `${site}order-confirmation?s={CHECKOUT_SESSION_ID}`, cancel_url: `${site}cart`, metadata: { order_id: order.id } });
     await sb.from("orders").update({ stripe_session_id: session.id }).eq("id", order.id);
     return J({ url: session.url });
   } catch (e) { console.error(e); return J({ error: "checkout_failed" }, 500); }
