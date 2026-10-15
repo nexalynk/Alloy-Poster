@@ -1,3 +1,4 @@
+let view="scene";const st3={rx:6,ry:-24};
 const CLIP={Hexagon:"polygon(25% 3%,75% 3%,100% 50%,75% 97%,25% 97%,0 50%)",Star:"polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)",Circle:"circle(50%)",Diamond:"polygon(50% 0,100% 50%,50% 100%,0 50%)",Octagon:"polygon(30% 0,70% 0,100% 30%,100% 70%,70% 100%,30% 100%,0 70%,0 30%)"};
 const st={shape:"Rectangle",size:1,orient:"Portrait",finish:"Gloss",mount:"Standard",enh:"None",qty:1,img:null,zoom:1,ox:0,oy:0,rot:0,url:null};
 function dims(){let[w,h]=CONFIG.sizes[st.size];if(st.shape!=="Rectangle"){const m=Math.min(w,h);return[m,m]}if(w===h)return[w,h];const p=Math.min(w,h),l=Math.max(w,h);return st.orient==="Landscape"?[l,p]:[p,l]}
@@ -6,7 +7,10 @@ function radios(id,name,vals,cur,fn){const el=$(id);el.innerHTML=vals.map(([v,l]
 function sizeOpts(){const seen=new Set(),rect=st.shape==="Rectangle";
  const list=CONFIG.sizes.map((z,i)=>[i,rect?z[0]+" × "+z[1]:Math.min(...z)+" in"]).filter(x=>rect||(!seen.has(x[1])&&seen.add(x[1])));
  if(!list.some(x=>x[0]==st.size))st.size=list[0][0];radios("#sizes","size",list,st.size,v=>st.size=+v)}
-function scene(){const w=$("#wall");w.classList.add("scale");w.insertAdjacentHTML("afterbegin",'<div class="sofa" aria-hidden="true"></div>');
+function scene(){const w=$("#wall");w.classList.add("scale");
+ w.insertAdjacentHTML("beforebegin",'<div class="viewtog" role="group" aria-label="Preview view"><button type="button" data-v="scene" class="on">Room view</button><button type="button" data-v="3d">3D view</button><small>In 3D view, drag the poster to rotate it. Double-click to reset.</small></div>');
+ document.querySelector(".viewtog").onclick=e=>{const v=e.target.dataset.v;if(!v)return;view=v;$$(".viewtog button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));draw()};
+ w.insertAdjacentHTML("afterbegin",'<div class="shadow3d" aria-hidden="true"></div>');w.insertAdjacentHTML("afterbegin",'<div class="sofa" aria-hidden="true"></div>');
  w.insertAdjacentHTML("afterend",'<div class="swatches"><span>Wall:</span>'+[["#e9e4dc","Warm white"],["#b7c4b0","Sage"],["#3a3d42","Charcoal"]].map(c=>`<button type="button" style="background:${c[0]}" aria-label="${c[1]} wall" data-w="${c[0]}"></button>`).join("")+'<small style="color:var(--muted)">Shown to scale: the sofa is 84 in wide.</small></div>');
  document.querySelector(".swatches").onclick=e=>{if(e.target.dataset.w)w.style.background=e.target.dataset.w}}
 function build(){
@@ -19,8 +23,15 @@ function build(){
  radios("#qty","qty",[1,2,3].map(n=>[n,n]),st.qty,v=>st.qty=+v);
 }
 const cv=$("#cv"),cx=cv.getContext("2d");
+function fx3(on){const pw=$("#pw");pw.querySelectorAll(".lay,.sheen").forEach(e=>e.remove());
+ pw.style.transform=on?`translate(-50%,-50%) rotateX(${st3.rx}deg) rotateY(${st3.ry}deg)`:"";if(!on)return;
+ const clip=CLIP[st.shape]||"none";for(let i=1;i<=6;i++){const d=document.createElement("div");d.className="lay";d.style.cssText=`transform:translateZ(${-i*1.2}px);background:hsl(215,8%,${68-i*3}%);clip-path:${clip}`;pw.prepend(d)}
+ const sh=document.createElement("div");sh.className="sheen";sh.style.clipPath=clip;pw.append(sh)}
 function draw(){
- const[w,h]=dims();const wall=$("#wall");if(!wall.classList.contains("scale"))scene();const s=wall.clientWidth/120,pw=$("#pw");pw.style.width=w*s+"px";pw.style.height=h*s+"px";pw.className="panelwrap"+(st.mount==="Floating"?" float":"");cv.style.clipPath=CLIP[st.shape]||"none";
+ const[w,h]=dims();const wall=$("#wall");if(!wall.classList.contains("scale"))scene();const pw=$("#pw"),t3=view==="3d";wall.classList.toggle("three",t3);
+ const s=t3?Math.min(wall.clientHeight*.7/h,wall.clientWidth*.55/w):wall.clientWidth/120;
+ pw.style.width=w*s+"px";pw.style.height=h*s+"px";pw.className="panelwrap"+(st.mount==="Floating"?" float":"")+(t3?" d3":"");
+ cv.style.clipPath=CLIP[st.shape]||"none";fx3(t3);
  const dpr=1,RES=800/Math.max(w,h);cv.width=Math.round(w*RES);cv.height=Math.round(h*RES);cx.setTransform(1,0,0,1,0,0);cx.fillStyle="#8a8a8a";cx.fillRect(0,0,cv.width,cv.height);
  if(!st.img)return;
  const I=st.img,r=st.rot%2?[I.height,I.width]:[I.width,I.height];
@@ -64,8 +75,9 @@ $("#rot").onclick=()=>{st.rot=(st.rot+1)%4;draw()};
 $("#reset").onclick=()=>{st.zoom=1;st.ox=st.oy=0;st.rot=0;$("#zoom").value=1;draw()};
 function clamp(){const m=(st.zoom-1)/2+.25;st.ox=Math.max(-m,Math.min(m,st.ox));st.oy=Math.max(-m,Math.min(m,st.oy))}
 let drag=null;const pw=$("#pw");
+pw.ondblclick=()=>{if(view==="3d"){st3.rx=6;st3.ry=-24;draw()}};
 pw.onpointerdown=e=>{drag={x:e.clientX,y:e.clientY};pw.setPointerCapture(e.pointerId)};
-pw.onpointermove=e=>{if(!drag||!st.img)return;const r=pw.getBoundingClientRect();st.ox+=(e.clientX-drag.x)/r.width;st.oy+=(e.clientY-drag.y)/r.height;drag={x:e.clientX,y:e.clientY};clamp();draw()};
+pw.onpointermove=e=>{if(drag&&view==="3d"){st3.ry=Math.max(-50,Math.min(50,st3.ry+(e.clientX-drag.x)*.4));st3.rx=Math.max(-30,Math.min(30,st3.rx-(e.clientY-drag.y)*.3));drag={x:e.clientX,y:e.clientY};draw();return}if(!drag||!st.img)return;const r=pw.getBoundingClientRect();st.ox+=(e.clientX-drag.x)/r.width;st.oy+=(e.clientY-drag.y)/r.height;drag={x:e.clientX,y:e.clientY};clamp();draw()};
 pw.onpointerup=()=>drag=null;
 addEventListener("resize",draw);
 

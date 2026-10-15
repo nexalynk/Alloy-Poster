@@ -19,7 +19,7 @@ apply(LS.get("ag_catalog",null));
 API.sb.rpc("get_catalog").then(({data})=>{if(!data)return;const changed=JSON.stringify(data)!==JSON.stringify(LS.get("ag_catalog",null));LS.set("ag_catalog",data);apply(data);
  if(changed&&window.build){try{build();update()}catch(e){}}if(changed)document.dispatchEvent(new Event("catalog"));renderCart()});
 window.uploadDesign=async f=>{if(!f)return null;const ext=(f.name.split(".").pop()||"").toLowerCase();
- const fail=e=>{toast(e&&e.context&&e.context.status===429?"Too many uploads. Please wait a while and try again.":"Upload failed. Check your connection and try again.");throw e||new Error("upload")};
+ const fail=e=>{console.error("Upload error:",e);toast(e&&e.name==="FunctionsFetchError"?"We couldn't reach the upload service. Please try again in a moment.":e&&e.context&&e.context.status===429?"Too many uploads. Please wait a while and try again.":"Upload failed. Check your connection and try again.");throw e||new Error("upload")};
  const{data,error}=await API.sb.functions.invoke("upload-url",{body:{ext,type:f.type,size:f.size}});
  if(error||!data||!data.token)fail(error);
  const up=await API.sb.storage.from("designs").uploadToSignedUrl(data.path,data.token,f,{contentType:f.type});

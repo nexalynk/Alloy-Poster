@@ -17,6 +17,7 @@ CONFIG.site=Object.assign({site_name:"Alloy Poster"},LS.get("ag_site",{}));
 function esc(s){return String(s==null?"":s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function applySite(){const s=CONFIG.site,name=s.site_name||"Alloy Poster",logo=$(".logo");
  if(logo){const u=s.logo||"";if(/^(https:\/\/|data:image\/)/.test(u)){logo.textContent="";const im=new Image();im.src=u;im.alt=name;im.style.cssText="height:34px;display:block";logo.append(im)}else logo.textContent=name.toUpperCase()}
+ if(/^(https:\/\/|data:image\/)[^"')\s]+$/.test(s.favicon||"")){$$('link[rel="icon"],link[rel="apple-touch-icon"]').forEach(l=>l.remove());const l=document.createElement("link");l.rel="icon";l.type="image/png";l.href=s.favicon;document.head.append(l)}
  const hero=$(".hero .art");if(hero&&/^(https:\/\/|data:image\/)[^"')\s]+$/.test(s.hero_image||"")){hero.style.backgroundImage='url("'+s.hero_image+'")';hero.classList.add("has-img")}
  if(s.promo_text){const b=$(".bar");if(b)b.textContent=s.promo_text}
  document.title=document.title.replace(/ \| [^|]*$/," | "+name);
