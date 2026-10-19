@@ -120,3 +120,10 @@ input[type=password],input[type=number]{width:100%;padding:10px;border:1px solid
 .wall.three .panelwrap{top:50%;filter:none;transform-style:preserve-3d;cursor:grab}
 .panelwrap .lay{position:absolute;inset:0;pointer-events:none}.panelwrap .sheen{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,rgba(255,255,255,.35),rgba(255,255,255,0) 38%,rgba(255,255,255,.12) 70%)}
 .shadow3d{display:none;position:absolute;left:50%;bottom:7%;width:50%;height:6%;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(0,0,0,.4),transparent);filter:blur(6px)}.wall.three .shadow3d{display:block}
+
+.wall.three{background:var(--surface)!important}.wall.three::after,.wall.three .shadow3d{display:none!important}.wall.three+.swatches{display:none}
+
+.stage{position:absolute;inset:0;transition:transform .18s ease}.wall.three .stage{perspective:1000px}
+.room{position:absolute;inset:0;width:100%;height:100%;display:block}.wall.three .room{display:none}.wall.scale::after{display:none}
+.wall.scale:not(.three) .panelwrap{top:30%;filter:drop-shadow(5px 9px 9px rgba(0,0,0,.34))}.wall.scale:not(.three) .panelwrap.float{filter:drop-shadow(8px 16px 14px rgba(0,0,0,.4))}
+.vzc{display:inline-flex;gap:6px;align-items:center}.vzc button{min-width:40px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer;min-height:40px;font:inherit}
