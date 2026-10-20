@@ -1,5 +1,6 @@
 import Stripe from "npm:stripe@17";
 import { createClient } from "npm:@supabase/supabase-js@2";
+const CUR = (Deno.env.get("STORE_CURRENCY") ?? "cad").toLowerCase();
 const cors = { "Access-Control-Allow-Origin": Deno.env.get("SITE_ORIGIN") ?? "*", "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type", "Access-Control-Allow-Methods": "POST, OPTIONS" };
 const J = (b: unknown, s = 200) => new Response(JSON.stringify(b), { status: s, headers: { ...cors, "Content-Type": "application/json" } });
 Deno.serve(async (req) => {
@@ -27,14 +28,14 @@ Deno.serve(async (req) => {
       const u = Math.max(R.min_price, w * h * R.price_per_sq_in) * +f.multiplier + +m.addon + +e.addon + +sh.addon;
       const cents = Math.round(u * (1 - rate) * 100); sub += cents * q;
       const name = String(i.name ?? "Custom Metal Print").slice(0, 80);
-      lines.push({ quantity: q, price_data: { currency: "usd", unit_amount: cents, product_data: { name, description: `${w} × ${h} in · ${i.finish} · ${i.mount}${i.shape && i.shape !== "Rectangle" ? " · " + i.shape : ""}${i.enh !== "None" ? " · Enhanced" : ""}` } } });
+      lines.push({ quantity: q, price_data: { currency: CUR, unit_amount: cents, product_data: { name, description: `${w} × ${h} in · ${i.finish} · ${i.mount}${i.shape && i.shape !== "Rectangle" ? " · " + i.shape : ""}${i.enh !== "None" ? " · Enhanced" : ""}` } } });
       clean.push({ name, d: [w, h], finish: i.finish, shape: i.shape ?? "Rectangle", mount: i.mount, enh: i.enh, qty: q, file: i.file ?? null, files, unit: cents / 100 });
     }
     const express = b.shipping === "express";
     const ship = (sub >= R.free_shipping_over * 100 ? 0 : Math.round(R.shipping_flat * 100)) + (express ? Math.round(R.shipping_express * 100) : 0);
     const tax = Math.round((sub + ship) * R.tax_rate);
-    if (ship) lines.push({ quantity: 1, price_data: { currency: "usd", unit_amount: ship, product_data: { name: express ? "Express shipping" : "Shipping" } } });
-    if (tax) lines.push({ quantity: 1, price_data: { currency: "usd", unit_amount: tax, product_data: { name: "Estimated tax" } } });
+    if (ship) lines.push({ quantity: 1, price_data: { currency: CUR, unit_amount: ship, product_data: { name: express ? "Express shipping" : "Shipping" } } });
+    if (tax) lines.push({ quantity: 1, price_data: { currency: CUR, unit_amount: tax, product_data: { name: "Estimated tax" } } });
     const { data: order, error } = await sb.from("orders").insert({ customer_email: cu.email.toLowerCase(), customer_name: String(cu.name ?? "").slice(0, 120), shipping_address: cu.address, items: clean, subtotal: sub / 100, shipping: ship / 100, tax: tax / 100, total: (sub + ship + tax) / 100, shipping_method: express ? "express" : "standard" }).select("id").single();
     if (error) throw error;
     const site = Deno.env.get("SITE_URL")!; // e.g. https://yourstore.com/

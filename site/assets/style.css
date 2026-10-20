@@ -127,3 +127,7 @@ input[type=password],input[type=number]{width:100%;padding:10px;border:1px solid
 .room{position:absolute;inset:0;width:100%;height:100%;display:block}.wall.three .room{display:none}.wall.scale::after{display:none}
 .wall.scale:not(.three) .panelwrap{top:30%;filter:drop-shadow(5px 9px 9px rgba(0,0,0,.34))}.wall.scale:not(.three) .panelwrap.float{filter:drop-shadow(8px 16px 14px rgba(0,0,0,.4))}
 .vzc{display:inline-flex;gap:6px;align-items:center}.vzc button{min-width:40px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:999px;padding:8px 12px;cursor:pointer;min-height:40px;font:inherit}
+.nav{gap:16px}.nav nav{gap:14px;margin-left:8px;white-space:nowrap}.logo,.btn.hd,.cartbtn{white-space:nowrap}
+@media (max-width:1180px){.nav>.btn.hd{display:none}}
+@media (max-width:900px){.nav{gap:8px}.logo{font-size:15px;letter-spacing:.02em}.nav .cartbtn,.hamb{padding:8px 10px}}
+@media (max-width:900px){.logo{white-space:normal;max-width:96px;line-height:1.1}.nav .cartbtn,.hamb{font-size:14px}}
